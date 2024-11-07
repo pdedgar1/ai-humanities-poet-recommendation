@@ -18,6 +18,9 @@
         }
         #tags-container {
             margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
         }
         #recommendation {
             margin-top: 2rem;
@@ -27,8 +30,17 @@
             background: #f5f3e7;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .tag-checkbox {
-            margin: 0.5rem;
+        .tag-toggle {
+            padding: 0.5rem 1rem;
+            border: 1px solid #8b4513;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tag-toggle.active {
+            background-color: #8b4513;
+            color: #ffffff;
         }
     </style>
 </head>
@@ -67,21 +79,20 @@
 
             allTags.forEach(tag => {
                 const tagElement = document.createElement('div');
-                tagElement.classList.add('tag-checkbox');
-                tagElement.innerHTML = `
-                    <input type="checkbox" id="tag-${tag}" value="${tag}" onchange="handleTagSelection(this)">
-                    <label for="tag-${tag}">${tag}</label>
-                `;
+                tagElement.classList.add('tag-toggle');
+                tagElement.textContent = tag;
+                tagElement.onclick = () => handleTagToggle(tagElement, tag);
                 tagsContainer.appendChild(tagElement);
             });
         }
 
-        function handleTagSelection(checkbox) {
-            const tag = checkbox.value;
-            if (checkbox.checked) {
-                selectedTags.push(tag);
-            } else {
+        function handleTagToggle(tagElement, tag) {
+            if (selectedTags.includes(tag)) {
                 selectedTags = selectedTags.filter(t => t !== tag);
+                tagElement.classList.remove('active');
+            } else {
+                selectedTags.push(tag);
+                tagElement.classList.add('active');
             }
             displayRecommendations();
         }
@@ -112,3 +123,4 @@
     </script>
 </body>
 </html>
+
