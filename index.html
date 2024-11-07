@@ -19,7 +19,7 @@
         #tags-container {
             margin-bottom: 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
         }
         #recommendation {
@@ -41,6 +41,18 @@
         .tag-toggle.active {
             background-color: #8b4513;
             color: #ffffff;
+        }
+        .book-card {
+            border: 1px solid #d1cfc7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .book-card h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.25rem;
         }
     </style>
 </head>
@@ -108,9 +120,9 @@
             if (recommendedBooks.length > 0) {
                 recommendedBooks.forEach(book => {
                     const bookElement = document.createElement('div');
-                    bookElement.classList.add('book');
+                    bookElement.classList.add('book-card');
                     bookElement.innerHTML = `
-                        <p><strong>Title:</strong> ${book.title}</p>
+                        <h2>${book.title}</h2>
                         <p><strong>Author:</strong> ${book.author}</p>
                         <p><strong>Year:</strong> ${book.year}</p>
                     `;
@@ -123,4 +135,3 @@
     </script>
 </body>
 </html>
-
