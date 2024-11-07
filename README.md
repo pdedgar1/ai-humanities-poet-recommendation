@@ -1,2 +1,0 @@
-# humanities-in-ai-age
- 
