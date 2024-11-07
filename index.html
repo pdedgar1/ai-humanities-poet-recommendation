@@ -6,7 +6,7 @@
     <title>Discover a New Poet</title>
     <style>
         body {
-            font-family: "Times New Roman", serif;
+            font-family: "Georgia", serif;
             background-color: #f4ecd8;
             color: #4b3d33;
             max-width: 1000px;
@@ -18,10 +18,16 @@
         }
         #tags-container {
             margin-bottom: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 1rem;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .tag-row {
+            display: table-row;
+        }
+        .tag-cell {
+            display: table-cell;
+            padding: 0.5rem;
         }
         #recommendation {
             margin-top: 2rem;
@@ -93,12 +99,27 @@
             const tagsContainer = document.getElementById('tags');
             tagsContainer.innerHTML = ""; // Clear previous tags
 
+            let row;
+            let columnCount = 0;
+            const maxColumns = 3; // Set number of columns per row
+
             allTags.forEach(tag => {
+                if (columnCount % maxColumns === 0) {
+                    row = document.createElement('div');
+                    row.classList.add('tag-row');
+                    tagsContainer.appendChild(row);
+                }
+
+                const cell = document.createElement('div');
+                cell.classList.add('tag-cell');
                 const tagElement = document.createElement('div');
                 tagElement.classList.add('tag-toggle');
                 tagElement.textContent = tag;
                 tagElement.onclick = () => handleTagToggle(tagElement, tag);
-                tagsContainer.appendChild(tagElement);
+                cell.appendChild(tagElement);
+                row.appendChild(cell);
+
+                columnCount++;
             });
         }
 
