@@ -15,11 +15,22 @@
             border-radius: 10px;
             background: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #books-container {
+            width: 50%;
+            padding-right: 1rem;
+        }
+        #recommendation-container {
+            width: 50%;
+            padding-left: 1rem;
         }
         h1 {
             text-align: center;
             font-weight: normal;
             color: #3e3e3e;
+            width: 100%;
         }
         .book {
             margin-bottom: 1.5rem;
@@ -31,9 +42,6 @@
         }
         .rating {
             margin-top: 0.5rem;
-        }
-        .rating label {
-            margin-right: 10px;
         }
         #moreBooksBtn {
             display: block;
@@ -62,15 +70,18 @@
 </head>
 <body>
     <h1>Discover a New Poet</h1>
-    <div id="books"></div>
-    <button id="moreBooksBtn" onclick="loadMoreBooks()">Rate 10 More Books</button>
-    <div id="recommendation"></div>
+    <div id="books-container">
+        <div id="books"></div>
+        <button id="moreBooksBtn" onclick="loadMoreBooks()">Rate 10 More Books</button>
+    </div>
+    <div id="recommendation-container">
+        <div id="recommendation"></div>
+    </div>
 
     <script>
         // Load JSON data
         const poetryCollections = "poetry_collections.json";
-        const subjectTagPreferences = {};
-        const themeTagPreferences = {};
+        const tagPreferences = {};
         let ratedBooks = [];
         let allBooks = [];
 
@@ -96,43 +107,41 @@
                     <p><strong>Author:</strong> ${book.author}</p>
                     <p><strong>Year:</strong> ${book.year}</p>
                     <div class="rating">
-                        <label><input type="radio" name="rating${index}" value="1" onclick="handleRating(${index}, 1, ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> 1</label>
-                        <label><input type="radio" name="rating${index}" value="2" onclick="handleRating(${index}, 2, ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> 2</label>
-                        <label><input type="radio" name="rating${index}" value="3" onclick="handleRating(${index}, 3, ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> 3</label>
-                        <label><input type="radio" name="rating${index}" value="4" onclick="handleRating(${index}, 4, ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> 4</label>
-                        <label><input type="radio" name="rating${index}" value="5" onclick="handleRating(${index}, 5, ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> 5</label>
-                        <label><input type="radio" name="rating${index}" value="not_interested" onclick="handleRating(${index}, 'not_interested', ${JSON.stringify(book.subject_tags)}, ${JSON.stringify(book.theme_tags)}, '${book.title}')"> Not Interested</label>
+                        <label for="rating${index}">Rating:</label>
+                        <input type="range" id="rating${index}" name="rating${index}" min="1" max="5" value="3" step="1" oninput="handleRating(${index}, this.value, ${JSON.stringify(book.tags)}, '${book.title}')">
+                        <span id="ratingValue${index}">3</span>
                     </div>
                 `;
                 booksContainer.appendChild(bookElement);
+
+                // Update the displayed value of the slider
+                const ratingInput = bookElement.querySelector(`#rating${index}`);
+                const ratingValue = bookElement.querySelector(`#ratingValue${index}`);
+                ratingInput.addEventListener('input', function() {
+                    ratingValue.textContent = ratingInput.value;
+                });
             });
         }
 
-        function handleRating(index, rating, subjectTags, themeTags, bookTitle) {
+        function handleRating(index, rating, tags, bookTitle) {
+            rating = parseInt(rating);
             if (rating >= 3) {
-                ratedBooks.push(bookTitle);
+                if (!ratedBooks.includes(bookTitle)) {
+                    ratedBooks.push(bookTitle);
+                }
 
-                subjectTags.forEach(tag => {
-                    if (subjectTagPreferences[tag]) {
-                        subjectTagPreferences[tag]++;
+                tags.forEach(tag => {
+                    if (tagPreferences[tag]) {
+                        tagPreferences[tag]++;
                     } else {
-                        subjectTagPreferences[tag] = 1;
+                        tagPreferences[tag] = 1;
                     }
                 });
-
-                themeTags.forEach(tag => {
-                    if (themeTagPreferences[tag]) {
-                        themeTagPreferences[tag]++;
-                    } else {
-                        themeTagPreferences[tag] = 1;
-                    }
-                });
-            } else if (rating === 'not_interested') {
-                ratedBooks.push(bookTitle);
+            } else if (rating < 3 && ratedBooks.includes(bookTitle)) {
+                ratedBooks = ratedBooks.filter(title => title !== bookTitle);
             }
             recommendBook();
-            console.log('Current Subject Tag Preferences:', subjectTagPreferences);
-            console.log('Current Theme Tag Preferences:', themeTagPreferences);
+            console.log('Current Tag Preferences:', tagPreferences);
         }
 
         function loadMoreBooks() {
@@ -150,15 +159,9 @@
             unratedBooks.forEach(book => {
                 let score = 0;
 
-                book.subject_tags.forEach(tag => {
-                    if (subjectTagPreferences[tag]) {
-                        score += subjectTagPreferences[tag];
-                    }
-                });
-
-                book.theme_tags.forEach(tag => {
-                    if (themeTagPreferences[tag]) {
-                        score += themeTagPreferences[tag];
+                book.tags.forEach(tag => {
+                    if (tagPreferences[tag]) {
+                        score += tagPreferences[tag];
                     }
                 });
 
@@ -176,8 +179,7 @@
                     <p><strong>Title:</strong> ${bestMatch.title}</p>
                     <p><strong>Author:</strong> ${bestMatch.author}</p>
                     <p><strong>Year:</strong> ${bestMatch.year}</p>
-                    <p><strong>Subject Tags:</strong> ${bestMatch.subject_tags.join(', ')}</p>
-                    <p><strong>Theme Tags:</strong> ${bestMatch.theme_tags.join(', ')}</p>
+                    <p><strong>Tags:</strong> ${bestMatch.tags.join(', ')}</p>
                 `;
             } else {
                 recommendationContainer.innerHTML = "<p>No more books to recommend at the moment.</p>";
