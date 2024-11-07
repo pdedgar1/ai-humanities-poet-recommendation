@@ -18,9 +18,9 @@
         }
         #tags-container {
             margin-bottom: 2rem;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         #recommendation {
             margin-top: 2rem;
@@ -37,6 +37,7 @@
             text-align: center;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
+            white-space: nowrap;
         }
         .tag-toggle.active {
             background-color: #8b4513;
